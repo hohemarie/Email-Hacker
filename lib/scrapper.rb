@@ -2,7 +2,7 @@ require 'rubygems'
 require 'nokogiri'
 require 'open-uri'
 
-def array_villes_et_emails(url) #capture url des villes du 95
+def scrapper(url) #capture url des villes du 95
 url = "http://www.annuaire-des-mairies.com/val-d-oise.html"
 doc2 = Nokogiri::HTML(open(url))
 adresse2 = doc2.css('.lientxt')
@@ -33,22 +33,37 @@ end
 
 #Hash[villes.zip(emails)].each do |ville,email|
 #	puts ville+" => "+email
-my_hash=Hash[villes.zip(emails)]
-return my_hash(ville_entree)
+#my_hash=Hash[villes.zip(emails)]
+#return my_hash(ville_entree)
 end
+
+require 'net/smtp'
+
+def send_email(scrapper(url))
+  scrapper(url).each do |ville, email|
+    opts[:server]      ||= 'localhost'
+    opts[:from]        ||= 'wyffemmuppo-6864@yopmail.com'
+    opts[:from_alias]  ||= 'Exampler Exampler'
+    opts[:subject]     ||= "You need to see this"
+    opts[:recipient]   ||= email
+    opts[:body]        ||= """Bonjour,
+Je m'appelle #{prenom}e et je permets de contacter la mairie de #{city_name} à propos du remarquable travail que font Les Restos du Coeur. Cette association répand le bien dans la France et aide les plus démunis à s'en tirer.
+
+
+Avez-vous pensé à travailler avec eux ? Soutenir Les Restos du Coeur, c'est important pour notre cohésion sociale : rejoignez le mouvement !
+
+Merci à vous"""
+
+    msg = <<END_OF_MESSAGE
+From: #{opts[:from_alias]} <#{opts[:from]}>
+To: <#{opts[:recipient]}>
+Subject: #{opts[:subject]}
+
+#{opts[:body]}
+END_OF_MESSAGE
+
+    Net::SMTP.start(opts[:server]) do |smtp|
+      smtp.send_message msg, opts[:from], to
+    end
 end
-class Scrapper
-	# scrapper 3 départements
-
-	def return_city_array
-		
-	end
-
-	def return_email_array
-		
-	end
-
-	def return_state_array
-		
-	end
 end
